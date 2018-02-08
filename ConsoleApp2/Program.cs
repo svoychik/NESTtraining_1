@@ -1,17 +1,13 @@
 ﻿using Nest;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ConsoleApp2
 {
-  class Program
+  partial class Program
   {
-    
 
-private const string DefaultIndexName = "test";
+
+    private const string DefaultIndexName = "test";
     private const string ElasticSearchServerUri = @"http://localhost:9200";
     private const string UsersIndexName = "users";
 
@@ -20,39 +16,30 @@ private const string DefaultIndexName = "test";
       var client = CreateElasticClient();
 
       var users = new[] {
-        new User { Code = "XW1234", Name = "Лайф сервіс" },
-        new User { Code = "AD4567", Name = "Київстар" },
-        new User { Code = "AD2567", Name = "Київ" },
-        new User { Code = "AD5567", Name = "Газ" },
-        new User { Code = "AD6567", Name = "Криворіг" }
+        new Сity { Code = "1", Name = "Київ" },
+        new Сity { Code = "2", Name = "Житомир" },
+        new Сity { Code = "3", Name = "Рівно" },
+        new Сity { Code = "4", Name = "Володимир" },
+        new Сity { Code = "5", Name = "Конотоп" },
+        new Сity { Code = "6", Name = "Миколаїв" }
     };
 
       client.IndexMany(users);
 
-      // refresh the index after indexing so that the documents are immediately 
-      // available for search. This is good for testing, 
-      // but avoid doing it in production.
       client.Refresh(UsersIndexName);
 
-      var result = client.Search<User>(descriptor => descriptor
+      var result = client.Search<Сity>(descriptor => descriptor
           .Query(q => q
               .QueryString(queryDescriptor => queryDescriptor
-                  .Query("ивс")
+                  .Query("киї")
                   .Fields(fs => fs
                       .Fields(f1 => f1.Name)
                   )
               )
           )
       );
-
+      Console.Read();
       // outputs 1
-      Console.WriteLine(result.Total);
-    }
-
-    public class User
-    {
-      public string Code { get; set; }
-      public string Name { get; set; }
     }
 
     public static IElasticClient CreateElasticClient()
@@ -60,8 +47,6 @@ private const string DefaultIndexName = "test";
       var settings = CreateConnectionSettings();
       var client = new ElasticClient(settings);
 
-      // this is here so that the example can be re-run.
-      // Remove this!
       if (client.IndexExists(UsersIndexName).Exists)
       {
         client.DeleteIndex(UsersIndexName);
@@ -69,14 +54,8 @@ private const string DefaultIndexName = "test";
 
       client.CreateIndex(UsersIndexName, descriptor => descriptor
           .Mappings(ms => ms
-              .Map<User>(m => m
+              .Map<Сity>(m => m
                   .AutoMap()
-                  .Properties(ps => ps
-                      .Text(s => s
-                          .Name(n => n.Name)
-                          .Analyzer("substring_analyzer")
-                      )
-                  )
               )
           )
           .Settings(s => s
@@ -105,7 +84,7 @@ private const string DefaultIndexName = "test";
       var uri = new Uri(ElasticSearchServerUri);
       var settings = new ConnectionSettings(uri)
           .DefaultIndex(DefaultIndexName)
-          .InferMappingFor<User>(d => d
+          .InferMappingFor<Сity>(d => d
               .IndexName(UsersIndexName)
           );
 
